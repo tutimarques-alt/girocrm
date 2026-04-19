@@ -141,8 +141,8 @@ export async function POST(request: Request) {
 
   let instanceToken =
   evoResult.hash?.apikey ||
-  (evoResult as Record<string, unknown> & { instance?: { apikey?: string } })?.instance?.apikey ||
-  (evoResult as Record<string, unknown> & { token?: string })?.token ||
+  (evoResult as unknown as { instance?: { apikey?: string } })?.instance?.apikey ||
+  (evoResult as unknown as { token?: string })?.token ||
   '';
 
 if (!instanceToken) {
