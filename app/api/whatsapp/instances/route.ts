@@ -139,12 +139,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Falha ao criar instância na Evolution API.' }, { status: 502 });
   }
 
-  let instanceToken = evoResult.hash?.apikey || (evoResult as unknown as { token: string }).token || '';
+  let instanceToken =
+  evoResult.hash?.apikey ||
+  (evoResult as Record<string, unknown> & { instance?: { apikey?: string } })?.instance?.apikey ||
+  (evoResult as Record<string, unknown> & { token?: string })?.token ||
+  '';
 
 if (!instanceToken) {
   try {
     const instances = await evolution.fetchInstances(baseUrl, globalApiKey, instanceName);
-    instanceToken = instances[0]?.apikey || '';
+    const inst = instances[0] as unknown as {
+      instance?: { apikey?: string };
+      apikey?: string;
+      hash?: { apikey?: string };
+    };
+    instanceToken =
+      inst?.instance?.apikey ||
+      inst?.apikey ||
+      inst?.hash?.apikey ||
+      '';
   } catch (err) {
     console.error('[whatsapp] Failed to fetch instance token via fetchInstances:', err);
   }
@@ -153,7 +166,7 @@ if (!instanceToken) {
 if (!instanceToken) {
   console.error('[whatsapp] Could not get instance token. Response:', JSON.stringify(evoResult));
   instanceToken = 'pending';
-} 
+}
   const { data: updatedInstance } = await ctx.supabase
     .from('whatsapp_instances')
     .update({
