@@ -139,8 +139,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Falha ao criar instância na Evolution API.' }, { status: 502 });
   }
 
-   const instanceToken = evoResult.hash?.apikey || (evoResult as unknown as { token: string }).token || 'pending';
+  let instanceToken = evoResult.hash?.apikey || (evoResult as unknown as { token: string }).token || '';
 
+if (!instanceToken) {
+  try {
+    const instances = await evolution.fetchInstances(baseUrl, globalApiKey, instanceName);
+    instanceToken = instances[0]?.apikey || '';
+  } catch (err) {
+    console.error('[whatsapp] Failed to fetch instance token via fetchInstances:', err);
+  }
+}
+
+if (!instanceToken) {
+  console.error('[whatsapp] Could not get instance token. Response:', JSON.stringify(evoResult));
+  instanceToken = 'pending';
+} 
   const { data: updatedInstance } = await ctx.supabase
     .from('whatsapp_instances')
     .update({
