@@ -139,11 +139,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Falha ao criar instância na Evolution API.' }, { status: 502 });
   }
 
+   const instanceToken = evoResult.hash?.apikey || (evoResult as unknown as { token: string }).token || 'pending';
+
   const { data: updatedInstance } = await ctx.supabase
     .from('whatsapp_instances')
     .update({
       instance_id: evoResult.instance.instanceId,
-      instance_token: evoResult.hash.apikey,
+      instance_token: instanceToken,
       webhook_url: webhookUrl,
       updated_at: new Date().toISOString(),
     })
@@ -153,7 +155,7 @@ export async function POST(request: Request) {
 
   const instanceCreds: evolution.EvolutionCredentials = {
     baseUrl,
-    apiKey: evoResult.hash.apikey,
+    apiKey: instanceToken,
     instanceName,
   };
 
