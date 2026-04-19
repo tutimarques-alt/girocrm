@@ -41,9 +41,12 @@ export async function GET(_request: Request, { params }: Params) {
     const creds = await getEvolutionCredentials(supabase, instance);
     const result = await evolution.connectInstance(creds);
 
+        const raw = result.base64 || result.code || '';
+    const value = raw.replace(/^data:image\/[^;]+;base64,/, '');
+
     return NextResponse.json({
       data: {
-        value: result.base64 || result.code || '',
+        value,
         connected: false,
       },
     });
