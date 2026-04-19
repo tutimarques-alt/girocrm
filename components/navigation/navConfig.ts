@@ -5,6 +5,7 @@ import {
   Settings,
   User,
   MoreHorizontal,
+  Kanban
 } from 'lucide-react';
 
 export type PrimaryNavId = 'inbox' | 'boards' | 'contacts' | 'activities' | 'more';
@@ -19,6 +20,7 @@ export interface PrimaryNavItem {
 
 export const PRIMARY_NAV: PrimaryNavItem[] = [
   { id: 'contacts', label: 'Contatos', href: '/contacts', icon: Users },
+  { id: 'boards', label: 'Boards', href: '/boards', icon: Kanban },
   { id: 'more', label: 'Mais', icon: MoreHorizontal },
 ];
 
